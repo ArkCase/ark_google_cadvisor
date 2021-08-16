@@ -148,6 +148,11 @@ LABEL APP="Google cAdvisor"
 LABEL VERSION="${VER}"
 
 #
+# Create the required user
+#
+RUN useradd --system --user-group "${UID}"
+
+#
 # Some useful environment variables
 #
 ENV GOROOT="/usr/local/go"
