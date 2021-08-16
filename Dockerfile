@@ -180,6 +180,6 @@ COPY --from=build "${GOPATH}/src/github.com/google/cadvisor/cadvisor" /usr/local
 #
 USER        ${UID}
 EXPOSE      8080
-ENTRYPOINT  [ "/usr/bin/cadvisor", "-logtostderr" ]
+ENTRYPOINT  [ "/usr/local/bin/cadvisor", "-logtostderr" ]
 HEALTHCHECK --interval=30s --timeout=3s \
             CMD wget --quiet --tries=1 --spider "${CADVISOR_HEALTHCHECK_URL}" || exit 1
