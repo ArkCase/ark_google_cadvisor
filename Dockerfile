@@ -43,10 +43,13 @@ ARG PFM_MAJ="4"
 ARG PFM_MIN="11"
 ARG PFM_REL="0"
 ARG PFM_VER="${PFM_MAJ}.${PFM_MIN}.${PFM_REL}"
-ARG PFM_SRC="https://sourceforge.net/projects/perfmon2/files/libpfm${PFM_MAJ}/libpfm-${PFM_VER}.tar.gz"
+ARG PFM_TAR="libpfm-${PFM_VER}.tar.gz"
+ARG PFM_SRC="https://sourceforge.net/projects/perfmon2/files/libpfm${PFM_MAJ}/${PFM_TAR}"
 ARG PFM_SHA="112bced9a67d565ff0ce6c2bb90452516d1183e5"
 ARG IPMCTL_VER="02.00.00.3820"
 ARG IPMCTL_SRC="https://github.com/intel/ipmctl"
+ARG GO_VER="1.16.7"
+ARG GO_SRC="https://golang.org/dl/go${GO_VER}.${OS}-${ARCH}.tar.gz"
 
 #
 # Set the Go environment
@@ -55,6 +58,11 @@ ENV GOROOT="/usr/local/go"
 ENV GOPATH="/go"
 ENV PATH="${PATH}:${GOROOT}/bin"
 ENV GO_FLAGS="-tags=libpfm,netgo,libipmctl"
+
+#
+# Download and install go
+#
+RUN curl -L "${GO_SRC}" -o - | tar -C "/usr/local" -xzf -
 
 #
 # Some important labels
@@ -67,10 +75,28 @@ LABEL VERSION="${VER}"
 #
 # Download and install the compilation tools
 #
-RUN apk --no-cache add libc6-compat device-mapper findutils zfs build-base linux-headers go python3 bash git wget cmake pkgconfig ndctl-dev && \
-    apk --no-cache add thin-provisioning-tools --repository http://dl-3.alpinelinux.org/alpine/edge/main/ && \
+# Missing dependencies from Alpine:
+#        zfs
+#        fortify-headers
+RUN yum -y install \
+        bash \
+        cmake \
+        compat-glibc \
+        device-mapper \
+        device-mapper-persistent-data \
+        findutils \
+        gcc \
+        gcc-c++ \
+        git \
+        kernel-headers \
+        make \
+        ndctl-devel \
+        patch \
+        python3 \
+        pkgconfig \
+        wget && \
     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-    rm -rf /var/cache/apk/*
+    yum -y clean all
 
 #
 # Set the working directory for all builds
@@ -80,9 +106,9 @@ WORKDIR /usr/src/app/
 #
 # Build libpfm
 #
-RUN curl -L "${PFM_SRC}" && \
-    echo "${PFM_SHA}  libpfm-${PFM_VER}.tar.gz" | sha1sum -c && \
-    tar -xzf "libpfm-${PFM_VER}.tar.gz" && \
+RUN curl -L "${PFM_SRC}" -o "${PFM_TAR}" && \
+    echo "${PFM_SHA}  ${PFM_TAR}" | sha1sum -c && \
+    tar -xzf "${PFM_TAR}" && \
     cd "libpfm-${PFM_VER}" && \
     export DBG="-g -Wall" && \
     make && \
@@ -91,7 +117,7 @@ RUN curl -L "${PFM_SRC}" && \
 #
 # Build libipmctl
 #
-RUN git clone -b "v${IMPCTL_VER}" "${IPMCTL_SRC}" ipmctl && \
+RUN git clone -b "v${IPMCTL_VER}" "${IPMCTL_SRC}" ipmctl && \
     cd ipmctl && \
     mkdir output && \
     cd output && \
@@ -136,10 +162,18 @@ ENV GOROOT="/usr/local/go"
 ENV GOPATH="/go"
 ENV CADVISOR_HEALTHCHECK_URL="http://localhost:8080/healthz"
 
-RUN apk --no-cache add libc6-compat device-mapper findutils zfs ndctl && \
-    apk --no-cache add thin-provisioning-tools --repository http://dl-3.alpinelinux.org/alpine/edge/main/ && \
+#
+# Missing dependencies from Alpine:
+#       zfs
+RUN yum -y install \
+        compat-glibc \
+        device-mapper \
+        device-mapper-persistent-data \
+        findutils \
+        ndctl \
+        wget && \
     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-    rm -rf /var/cache/apk/*
+    yum -y clean all
 
 #
 # Copy the built artifacts
