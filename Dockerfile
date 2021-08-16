@@ -46,8 +46,6 @@ ARG PFM_VER="${PFM_MAJ}.${PFM_MIN}.${PFM_REL}"
 ARG PFM_TAR="libpfm-${PFM_VER}.tar.gz"
 ARG PFM_SRC="https://sourceforge.net/projects/perfmon2/files/libpfm${PFM_MAJ}/${PFM_TAR}"
 ARG PFM_SHA="112bced9a67d565ff0ce6c2bb90452516d1183e5"
-ARG IPMCTL_VER="02.00.00.3820"
-ARG IPMCTL_SRC="https://github.com/intel/ipmctl"
 ARG GO_VER="1.16.7"
 ARG GO_SRC="https://golang.org/dl/go${GO_VER}.${OS}-${ARCH}.tar.gz"
 
@@ -57,7 +55,8 @@ ARG GO_SRC="https://golang.org/dl/go${GO_VER}.${OS}-${ARCH}.tar.gz"
 ENV GOROOT="/usr/local/go"
 ENV GOPATH="/go"
 ENV PATH="${PATH}:${GOROOT}/bin"
-ENV GO_FLAGS="-tags=libpfm,netgo,libipmctl"
+#ENV GO_FLAGS="-tags=libpfm,netgo,libipmctl"
+ENV GO_FLAGS="-tags=libpfm,netgo"
 
 #
 # Download and install go
@@ -78,6 +77,10 @@ LABEL VERSION="${VER}"
 # Missing dependencies from Alpine:
 #        zfs
 #        fortify-headers
+
+#        ipmctl \
+#        libipmctl \
+RUN yum -y install epel-release
 RUN yum -y install \
         bash \
         cmake \
@@ -112,17 +115,6 @@ RUN curl -L "${PFM_SRC}" -o "${PFM_TAR}" && \
     cd "libpfm-${PFM_VER}" && \
     export DBG="-g -Wall" && \
     make && \
-    make install
-
-#
-# Build libipmctl
-#
-RUN git clone -b "v${IPMCTL_VER}" "${IPMCTL_SRC}" ipmctl && \
-    cd ipmctl && \
-    mkdir output && \
-    cd output && \
-    cmake -DRELEASE=ON -DCMAKE_INSTALL_PREFIX=/ -DCMAKE_INSTALL_LIBDIR=/usr/local/lib .. && \
-    make -j all && \
     make install
 
 #
@@ -179,7 +171,7 @@ RUN yum -y install \
 # Copy the built artifacts
 #
 COPY --from=build /usr/local/lib/libpfm.so* /usr/local/lib/
-COPY --from=build /usr/local/lib/libipmctl.so* /usr/local/lib/
+# COPY --from=build /usr/local/lib/libipmctl.so* /usr/local/lib/
 COPY --from=build "${GOPATH}/src/github.com/google/cadvisor/cadvisor" /usr/local/bin/cadvisor
 
 #
