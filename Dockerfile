@@ -137,7 +137,7 @@ ARG OS="linux"
 ARG VER="0.40.0"
 ARG PKG="google_cadvisor"
 ARG SRC="https://github.com/google/cadvisor.git"
-ARG UID="google"
+ARG UID="root"
 
 #
 # Some important labels
@@ -146,11 +146,6 @@ LABEL ORG="Armedia LLC"
 LABEL MAINTAINER="Armedia Devops Team <devops@armedia.com>"
 LABEL APP="Google cAdvisor"
 LABEL VERSION="${VER}"
-
-#
-# Create the required user
-#
-RUN useradd --system --user-group "${UID}"
 
 #
 # Some useful environment variables
@@ -167,6 +162,7 @@ RUN yum -y install \
         device-mapper \
         device-mapper-persistent-data \
         findutils \
+        libpfm \
         ndctl \
         wget && \
     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
