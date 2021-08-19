@@ -68,7 +68,7 @@ RUN curl -L "${GO_SRC}" -o - | tar -C "/usr/local" -xzf -
 #
 LABEL ORG="Armedia LLC"
 LABEL MAINTAINER="Armedia Devops Team <devops@armedia.com>"
-LABEL APP="Grafana"
+LABEL APP="Google cAdvisor"
 LABEL VERSION="${VER}"
 
 #
