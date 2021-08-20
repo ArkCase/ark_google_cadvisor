@@ -74,12 +74,11 @@ LABEL VERSION="${VER}"
 #
 # Download and install the compilation tools
 #
-# Missing dependencies from Alpine:
+# In case we want to support these later:
 #        zfs
 #        fortify-headers
-
-#        ipmctl \
-#        libipmctl \
+#        ipmctl
+#        libipmctl
 RUN yum -y install epel-release
 RUN yum -y install \
         bash \
@@ -155,7 +154,7 @@ ENV GOPATH="/go"
 ENV CADVISOR_HEALTHCHECK_URL="http://localhost:8080/healthz"
 
 #
-# Missing dependencies from Alpine:
+# In case we want to support it later:
 #       zfs
 RUN yum -y install \
         compat-glibc \
