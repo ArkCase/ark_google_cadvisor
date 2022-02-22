@@ -8,7 +8,7 @@ FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest as src
 #
 ARG ARCH="amd64"
 ARG OS="linux"
-ARG VER="0.40.0"
+ARG VER="0.39.3"
 ARG PKG="google_cadvisor"
 ARG SRC="https://github.com/google/cadvisor.git"
 
@@ -37,7 +37,7 @@ FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest as build
 #
 ARG ARCH="amd64"
 ARG OS="linux"
-ARG VER="0.40.0"
+ARG VER="0.39.3"
 ARG PKG="google_cadvisor"
 ARG PFM_MAJ="4"
 ARG PFM_MIN="11"
@@ -133,7 +133,7 @@ FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest
 #
 ARG ARCH="amd64"
 ARG OS="linux"
-ARG VER="0.40.0"
+ARG VER="0.39.3"
 ARG PKG="google_cadvisor"
 ARG SRC="https://github.com/google/cadvisor.git"
 ARG UID="root"
