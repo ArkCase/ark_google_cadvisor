@@ -1,8 +1,11 @@
 #
 # This one houses the main git clone
 #
-FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest as src
-
+ARG PUBLIC_REGISTRY="public.ecr.aws"
+ARG BASE_REPO="arkcase/base"
+ARG BASE_VER="8"
+ARG BASE_IMG="${PUBLIC_REGISTRY}/${BASE_REPO}:${BASE_VER}"
+FROM "${BASE_IMG}" as src
 #
 # Basic Parameters
 #
@@ -30,8 +33,8 @@ RUN yum -y update && yum -y install git && git clone -b "v${VER}" --single-branc
 #
 # This one builds the artifacts
 #
-FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest as build
-
+# FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest as build
+FROM "${BASE_IMG}" as build
 #
 # Basic Parameters
 #
@@ -79,11 +82,11 @@ LABEL VERSION="${VER}"
 #        fortify-headers
 #        ipmctl
 #        libipmctl
-RUN yum -y install epel-release
-RUN yum -y install \
+RUN yum -y install epel-release && \
+    yum -y group install "Development Tools" && \
+    yum -y install \
         bash \
         cmake \
-        compat-glibc \
         device-mapper \
         device-mapper-persistent-data \
         findutils \
@@ -126,7 +129,8 @@ RUN ./build/build.sh
 #
 # The actual runnable container
 #
-FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest
+FROM "${BASE_IMG}"
+# FROM 345280441424.dkr.ecr.ap-south-1.amazonaws.com/ark_base:latest
 
 #
 # Basic Parameters
@@ -156,8 +160,8 @@ ENV CADVISOR_HEALTHCHECK_URL="http://localhost:8080/healthz"
 #
 # In case we want to support it later:
 #       zfs
-RUN yum -y install \
-        compat-glibc \
+RUN yum -y group install "Development Tools" && \
+    yum -y install \
         device-mapper \
         device-mapper-persistent-data \
         findutils \
